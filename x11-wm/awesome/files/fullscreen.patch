@@ -19,7 +19,7 @@ index 02e5ace..2610d7c 100644
  
 -    if(width == window->border_width || width < 0)
 +    if(width == window->border_width || width < 0 ||
-+       ((c = client_getbywin(window->window)) && c->fullscreen))
++       ((c = client_getbywin(window->window)) && c->fullscreen && width > 0))
          return;
  
      if(window->window)
