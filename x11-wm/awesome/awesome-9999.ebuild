@@ -79,10 +79,6 @@ src_unpack() {
 	echo -n "`git --git-dir="${GIT_DIR}" describe`-gentoo" > ${S}/.version_stamp
 }
 
-src_prepare() {
-	epatch "${FILESDIR}/fullscreen.patch"
-}
-
 src_configure() {
 	mycmakeargs=(
 		-DPREFIX="${EPREFIX}"/usr
