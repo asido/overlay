@@ -79,6 +79,11 @@ src_unpack() {
 	echo -n "`git --git-dir="${GIT_DIR}" describe`-gentoo" > ${S}/.version_stamp
 }
 
+src_prepare() {
+	epatch	\
+	"${FILESDIR}/0001-Ignore-client-signals-to-move-itself-outside-current.patch"
+}
+
 src_configure() {
 	mycmakeargs=(
 		-DPREFIX="${EPREFIX}"/usr

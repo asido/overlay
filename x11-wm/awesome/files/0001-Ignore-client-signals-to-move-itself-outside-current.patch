@@ -1,0 +1,35 @@
+From e893b6f19298c482fa29d6eb040293d909bf6c65 Mon Sep 17 00:00:00 2001
+From: Arvydas Sidorenko <asido4@gmail.com>
+Date: Fri, 25 May 2012 14:58:11 +0200
+Subject: [PATCH] Ignore client signals to move itself outside current screen
+
+Some clients, in example Netbeans splash window, emits a signal from Swing
+(or whatever toolkit is used there) to move itself to different screen.
+That's ugly and should not be allowed.
+
+Signed-off-by: Arvydas Sidorenko <asido4@gmail.com>
+---
+ event.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/event.c b/event.c
+index 2db7f75..d1cb878 100644
+--- a/event.c
++++ b/event.c
+@@ -304,9 +304,11 @@ event_handle_configurerequest(xcb_configure_request_event_t *ev)
+     {
+         area_t geometry = c->geometry;
+ 
+-        if(ev->value_mask & XCB_CONFIG_WINDOW_X)
++        if(ev->value_mask & XCB_CONFIG_WINDOW_X
++           && screen_getbycoord(ev->x, geometry.y) == c->screen)
+             geometry.x = ev->x;
+-        if(ev->value_mask & XCB_CONFIG_WINDOW_Y)
++        if(ev->value_mask & XCB_CONFIG_WINDOW_Y
++           && screen_getbycoord(geometry.x, ev->y) == c->screen)
+             geometry.y = ev->y;
+         if(ev->value_mask & XCB_CONFIG_WINDOW_WIDTH)
+             geometry.width = ev->width;
+-- 
+1.7.8.6
+
