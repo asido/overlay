@@ -1,0 +1,115 @@
+From 79d30c0c334c6bbb350305dec4e2478e35ab17d9 Mon Sep 17 00:00:00 2001
+From: jinleileiking <jinleileiking@gmail.com>
+Date: Wed, 20 Jun 2012 11:50:47 +0200
+Subject: [PATCH] fix widget loader for lua51
+
+Because of the new module concept for lua52, we can't access submodule
+"helpers", before module "vicious" is initialized.
+
+Therefore it couldn't get a reference to helpers.wrequire, which is needed for the dynamic loader.
+---
+ contrib/init.lua | 18 ------------------
+ helpers.lua      |  6 ------
+ init.lua         | 14 ++++++++++++--
+ widgets/init.lua | 18 ------------------
+ 4 Dateien geändert, 12 Zeilen hinzugefügt(+), 44 Zeilen entfernt(-)
+ delete mode 100644 contrib/init.lua
+ delete mode 100644 widgets/init.lua
+
+diff --git a/contrib/init.lua b/contrib/init.lua
+deleted file mode 100644
+index d30b33d..0000000
+--- a/contrib/init.lua
++++ /dev/null
+@@ -1,18 +0,0 @@
+----------------------------------------------------
+--- Vicious widgets for the awesome window manager
+----------------------------------------------------
+--- Licensed under the GNU General Public License v2
+---  * (c) 2010, Adrian C. <anrxc@sysphere.org>
+----------------------------------------------------
+-
+--- {{{ Setup environment
+-local setmetatable = setmetatable
+-local wrequire = require("vicious.helpers").wrequire
+-
+--- Vicious: widgets for the awesome window manager
+--- vicious.contrib
+-local contrib = {}
+--- }}}
+-
+--- Load modules at runtime as needed
+-return setmetatable(contrib, { __index = wrequire })
+diff --git a/helpers.lua b/helpers.lua
+index 93a701b..5d47141 100644
+--- a/helpers.lua
++++ b/helpers.lua
+@@ -32,12 +32,6 @@ local scroller = {}
+ -- }}}
+ 
+ -- {{{ Helper functions
+--- {{{ Loader of vicious modules
+-function helpers.wrequire(table,  key)
+-    local module = rawget(table,  key)
+-    return module or require(table._NAME .. "." .. key)
+-end
+--- }}}
+ 
+ -- {{{ Expose path as a Lua table
+ function helpers.pathtotable(dir)
+diff --git a/init.lua b/init.lua
+index fa57ea7..72ec8ec 100644
+--- a/init.lua
++++ b/init.lua
+@@ -16,12 +16,22 @@ local table = {
+     insert  = table.insert,
+     remove  = table.remove
+ }
+-
+ local helpers = require("vicious.helpers")
+ 
+ -- Vicious: widgets for the awesome window manager
+ local vicious = {}
+-vicious.widgets = require("vicious.widgets")
++
++function wrequire(pkg)
++    return function(table, key)
++        local module = rawget(table,  key)
++        return module or require(pkg .. "." .. key)
++    end
++end
++
++vicious.widgets = {}
++setmetatable(vicious.widgets, {__index = wrequire("vicious.widgets")})
++vicious.contrib = {}
++setmetatable(vicious.contrib, {__index = wrequire("vicious.contrib")})
+ 
+ -- Initialize tables
+ local timers       = {}
+diff --git a/widgets/init.lua b/widgets/init.lua
+deleted file mode 100644
+index 4625df0..0000000
+--- a/widgets/init.lua
++++ /dev/null
+@@ -1,18 +0,0 @@
+----------------------------------------------------
+--- Vicious widgets for the awesome window manager
+----------------------------------------------------
+--- Licensed under the GNU General Public License v2
+---  * (c) 2010, Adrian C. <anrxc@sysphere.org>
+----------------------------------------------------
+-
+--- {{{ Setup environment
+-local setmetatable = setmetatable
+-local wrequire = require("vicious.helpers").wrequire
+-
+--- Vicious: widgets for the awesome window manager
+--- vicious.widgets
+-local widgets = { _NAME = "vicious.widgets" }
+--- }}}
+-
+--- Load modules at runtime as needed
+-return setmetatable(widgets, { __index = wrequire })
+-- 
+1.7.11
+

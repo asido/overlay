@@ -5,7 +5,9 @@
 EAPI="3"
 inherit git cmake-utils eutils
 
-EGIT_REPO_URI="git://git.naquadah.org/awesome.git"
+# upstream
+#EGIT_REPO_URI="git://git.naquadah.org/awesome.git"
+EGIT_REPO_URI="git://github.com/Asido/AwesomeWM.git"
 
 DESCRIPTION="A dynamic floating and tiling window manager"
 HOMEPAGE="http://awesome.naquadah.org/"
@@ -20,8 +22,7 @@ RDEPEND="
 	>=dev-lang/lua-5.1
 	dev-libs/libev
 	>=dev-libs/libxdg-basedir-1
-	dev-lua/oocairo
-	dev-lua/oopango
+	dev-lua/lgi
 	media-libs/imlib2[png]
 	x11-libs/cairo[xcb]
 	|| ( >x11-libs/libX11-1.3.5 <=x11-libs/libX11-1.3.5[xcb] )

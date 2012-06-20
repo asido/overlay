@@ -1,0 +1,89 @@
+diff --git a/src/plugins/scripts/lua/weechat-lua-api.c b/src/plugins/scripts/lua/weechat-lua-api.c
+index 85a9107..8a07c4e 100644
+--- a/src/plugins/scripts/lua/weechat-lua-api.c
++++ b/src/plugins/scripts/lua/weechat-lua-api.c
+@@ -6186,7 +6186,7 @@ weechat_lua_api_constant_weechat_hook_signal_pointer (lua_State *L)
+  * Lua subroutines
+  */
+ 
+-const struct luaL_reg weechat_lua_api_funcs[] = {
++const struct luaL_Reg weechat_lua_api_funcs[] = {
+     API_DEF_FUNC(register),
+     API_DEF_FUNC(plugin_get_name),
+     API_DEF_FUNC(charset_set),
+diff --git a/src/plugins/scripts/lua/weechat-lua-api.h b/src/plugins/scripts/lua/weechat-lua-api.h
+index e198a4c..b377892 100644
+--- a/src/plugins/scripts/lua/weechat-lua-api.h
++++ b/src/plugins/scripts/lua/weechat-lua-api.h
+@@ -21,7 +21,7 @@
+ #ifndef __WEECHAT_LUA_API_H
+ #define __WEECHAT_LUA_API_H 1
+ 
+-extern struct luaL_reg weechat_lua_api_funcs[];
++extern struct luaL_Reg weechat_lua_api_funcs[];
+ 
+ extern int weechat_lua_api_buffer_input_data_cb (void *data,
+                                                  struct t_gui_buffer *buffer,
+diff --git a/src/plugins/scripts/lua/weechat-lua.c b/src/plugins/scripts/lua/weechat-lua.c
+index 2b364d3..b316cc3 100644
+--- a/src/plugins/scripts/lua/weechat-lua.c
++++ b/src/plugins/scripts/lua/weechat-lua.c
+@@ -226,6 +226,28 @@ weechat_lua_exec (struct t_plugin_script *script, int ret_type,
+ }
+ 
+ /*
++ * weechat_lua_registerlib: registers a library to use inside Lua script
++ */
++
++void weechat_lua_registerlib(lua_State *L, const char *libname,
++                             const luaL_Reg *l)
++{
++#if LUA_VERSION_NUM >= 502
++    if (libname)
++    {
++        lua_newtable(L);
++        luaL_setfuncs(L, l, 0);
++        lua_pushvalue(L, -1);
++        lua_setglobal(L, libname);
++    }
++    else
++        luaL_setfuncs(L, l, 0);
++#else
++    luaL_register(L, libname, l);
++#endif
++}
++
++/*
+  * weechat_lua_load: load a Lua script
+  */
+ 
+@@ -261,7 +283,7 @@ weechat_lua_load (const char *filename)
+     lua_current_script = NULL;
+     lua_registered_script = NULL;
+ 
+-    lua_current_interpreter = lua_open ();
++    lua_current_interpreter = luaL_newstate();
+ 
+     if (lua_current_interpreter == NULL)
+     {
+@@ -284,7 +306,7 @@ weechat_lua_load (const char *filename)
+     luaopen_debug (lua_current_interpreter);
+ #endif
+ 
+-    luaL_openlib (lua_current_interpreter, "weechat", weechat_lua_api_funcs, 0);
++    weechat_lua_registerlib (lua_current_interpreter, "weechat", weechat_lua_api_funcs);
+ 
+ #ifdef LUA_VERSION_NUM
+     if (luaL_dostring (lua_current_interpreter, weechat_lua_code) != 0)
+diff --git a/src/plugins/scripts/lua/weechat-lua.h b/src/plugins/scripts/lua/weechat-lua.h
+index 944a2ac..b54526b 100644
+--- a/src/plugins/scripts/lua/weechat-lua.h
++++ b/src/plugins/scripts/lua/weechat-lua.h
+@@ -44,5 +44,7 @@ extern struct t_hashtable *weechat_lua_tohashtable (lua_State *interpreter,
+ extern void *weechat_lua_exec (struct t_plugin_script *script, int ret_type,
+                                const char *function,
+                                const char *format, void **argv);
++extern void weechat_lua_registerlib(lua_State *L, const char *libname,
++                                    const luaL_Reg *l);
+ 
+ #endif /* __WEECHAT_LUA_H */

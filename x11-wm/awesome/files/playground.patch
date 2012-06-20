@@ -1,0 +1,20 @@
+diff --git a/luaa.h b/luaa.h
+index d871964..e8ae8bc 100644
+--- a/luaa.h
++++ b/luaa.h
+@@ -78,6 +78,7 @@ static inline void
+ luaA_getuservalue(lua_State *L, int idx)
+ {
+ #if LUA_VERSION_NUM >= 502
++    printf(">> %d\n", lua_gettop(L));
+     lua_getuservalue(L, idx);
+ #else
+     lua_getfenv(L, idx);
+@@ -88,6 +89,7 @@ static inline void
+ luaA_setuservalue(lua_State *L, int idx)
+ {
+ #if LUA_VERSION_NUM >= 502
++    printf("<< %d\n", lua_gettop(L));
+     lua_setuservalue(L, idx);
+ #else
+     lua_setfenv(L, idx);

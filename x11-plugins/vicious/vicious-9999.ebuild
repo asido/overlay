@@ -8,7 +8,8 @@ inherit git
 DESCRIPTION="Modular widget library for x11-wm/awesome"
 HOMEPAGE="http://awesome.naquadah.org/wiki/Vicious"
 SRC_URI=""
-EGIT_REPO_URI="http://git.sysphere.org/vicious"
+#EGIT_REPO_URI="http://git.sysphere.org/vicious"
+EGIT_REPO_URI="git://github.com/Asido/vicious.git"
 
 LICENSE="GPL-2"
 SLOT="0"
@@ -17,6 +18,10 @@ IUSE=""
 
 DEPEND=""
 RDEPEND="x11-wm/awesome"
+
+src_prepare() {
+	epatch "${FILESDIR}/0001-fix-widget-loader-for-lua51.patch"
+}
 
 src_install() {
 	insinto /usr/share/awesome/lib/vicious

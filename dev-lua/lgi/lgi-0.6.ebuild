@@ -1,11 +1,9 @@
 EAPI=3
-inherit git eutils
-
-EGIT_REPO_URI="git://github.com/pavouk/lgi.git"
+inherit eutils
 
 DESCRIPTION="Lua binding to GObject based libraries."
 HOMEPAGE="https://github.com/pavouk/lgi"
-SRC_URI=""
+SRC_URI="https://github.com/downloads/pavouk/lgi/lgi-0.6.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
@@ -13,12 +11,6 @@ KEYWORDS="~x86 ~amd64"
 IUSE=""
 
 RDEPEND=">=dev-lang/lua-5.1"
-
-src_unpack()
-{
-	git_src_unpack
-	echo -n "`git --git-dir="${GIT_DIR}" describe`-gentoo" > ${S}/.version_stamp
-}
 
 src_prepare()
 {
